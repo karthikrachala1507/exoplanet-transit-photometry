@@ -1,21 +1,25 @@
 # Exoplanet Transit Photometry
-# Step 2: Download light curve and plot it
+# Step 3: Clean and normalise the light curve
 
 import lightkurve as lk
 import matplotlib.pyplot as plt
 
-# Search for WASP-39
 print("Downloading TESS light curve for WASP-39...")
 search_result = lk.search_lightcurve("WASP-39", mission="TESS", sector=51, author="SPOC", exptime=120)
-
-# Download the light curve
 lc = search_result.download()
-print("Download complete.")
-print(lc)
 
-# Plot the raw light curve
-lc.plot()
-plt.title("WASP-39 Raw Light Curve - TESS Sector 51")
-plt.savefig("wasp39_raw_lightcurve.png", dpi=150)
+# Remove NaN values and normalise flux
+lc_clean = lc.remove_nans().normalize()
+
+# Remove outliers beyond 3 sigma
+lc_clean = lc_clean.remove_outliers(sigma=3)
+
+print("Cleaned light curve:")
+print(lc_clean)
+
+# Plot cleaned light curve
+lc_clean.plot()
+plt.title("WASP-39 Cleaned and Normalised Light Curve - TESS Sector 51")
+plt.savefig("wasp39_clean_lightcurve.png", dpi=150)
 plt.show()
-print("Plot saved as wasp39_raw_lightcurve.png")
+print("Plot saved as wasp39_clean_lightcurve.png")
